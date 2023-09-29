@@ -1,6 +1,7 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+
 // Include EQdkpPlus configuration file (assuming it's in the same directory)
 require_once('config.php');
 
@@ -83,7 +84,7 @@ if (($handle = fopen($csv_file, 'r')) !== FALSE) {
         ]);
 
         // Check if the character already exists in the database
-        $query = "SELECT member_id FROM eqdkp23_members WHERE member_name = ?";
+        $query = "SELECT member_id FROM {$table_prefix}members WHERE member_name = ?";
         $stmt = $db->prepare($query);
 
         if (!$stmt) {
@@ -100,8 +101,8 @@ if (($handle = fopen($csv_file, 'r')) !== FALSE) {
             $row = $result->fetch_assoc();
             $member_id = $row['member_id'];
 
-            // Update the 'profiledata', 'member_rank_id', and 'last_update' columns in the eqdkp23_members table
-            $update_query = "UPDATE eqdkp23_members SET profiledata = ?, member_rank_id = ?, last_update = ? WHERE member_id = ?";
+            // Update the 'profiledata', 'member_rank_id', and 'last_update' columns in the {$table_prefix}members table
+            $update_query = "UPDATE {$table_prefix}members SET profiledata = ?, member_rank_id = ?, last_update = ? WHERE member_id = ?";
             $update_stmt = $db->prepare($update_query);
 
             if (!$update_stmt) {
@@ -121,7 +122,7 @@ if (($handle = fopen($csv_file, 'r')) !== FALSE) {
             $update_stmt->close();
         } else {
             // Character doesn't exist, insert a new record
-            $insert_query = "INSERT INTO eqdkp23_members (member_name, profiledata, member_rank_id, last_update, member_creation_date) VALUES (?, ?, ?, ?, ?)";
+            $insert_query = "INSERT INTO {$table_prefix}members (member_name, profiledata, member_rank_id, last_update, member_creation_date) VALUES (?, ?, ?, ?, ?)";
             $insert_stmt = $db->prepare($insert_query);
 
             if (!$insert_stmt) {
