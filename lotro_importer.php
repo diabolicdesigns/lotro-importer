@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Enable or disable error logging to a file
-$logErrorsToFile = true; // Set to true to log errors to a file
+$logErrorsToFile = false; // Set to true to log errors to a file
 
 // Include EQdkpPlus configuration file (assuming it's in the same directory)
 require_once('config.php');
