@@ -66,7 +66,7 @@ $class_mapping = [
     'Rune-keeper' => 8,
     'Warden' => 9,
     'Mariner' => 12,
-    'Corair' => 12,
+    'Corsair' => 12,
 ];
 
 // Mapping of race names to numeric values
