@@ -1,5 +1,5 @@
 <?php
-//Version: lotro_importer 2.3.1
+// Version: lotro_importer 2.3.2
 // Enable error reporting and display errors for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -211,35 +211,45 @@ if ($xml !== false) {
     } else {
         echo '<span style="color: blue;"><b>No updates/inserts were made.</b></span><br>';
     }
+	
+	// Remove characters from the database that do not exist in the XML
+	$xmlCharacterNames = [];
+	$xmlCharacterRanks = [];
 
-    // Remove characters from the database that do not exist in the XML
-    $xmlCharacterNames = array_map(function ($member) {
-        return (string)$member['name'];
-    }, $xml->member);
+	foreach ($xml->member as $member) {
+		$xmlCharacterNames[] = (string)$member['name'];
+		$xmlCharacterRanks[(string)$member['name']] = (int)$member['rank'];
+	}
 
-    $query = "SELECT member_name FROM {$table_prefix}members";
-    $result = $db->query($query);
-    if ($result) {
-        $characterNamesInDB = [];
-        while ($row = $result->fetch_assoc()) {
-            $characterNamesInDB[] = $row['member_name'];
-        }
+	$query = "SELECT member_name, member_rank_id FROM {$table_prefix}members";
+	$result = $db->query($query);
 
-        $charactersToRemove = array_diff($characterNamesInDB, $xmlCharacterNames);
+	if ($result) {
+		$charactersToRemove = [];
 
-        if (!empty($charactersToRemove)) {
-            $charactersToRemoveList = implode("', '", $charactersToRemove);
-            $deleteQuery = "DELETE FROM {$table_prefix}members WHERE member_name IN ('$charactersToRemoveList')";
-            if ($db->query($deleteQuery)) {
-                echo '<span style="color: green;">Characters not in XML file removed from the database.</span><br>';
-                echo '<span style="color: red; font-style: italic;"><b>Characters removed from the database: ' . implode(', ', $charactersToRemove) . '</b></span><br>';
-            } else {
-                $errorMessage = 'Error removing characters not in XML file: ' . $db->error;
-                logError($errorMessage); // Log the error
-                echo '<span style="color: red; font-style: italic;">' . $errorMessage . '</span><br>';
-            }
-        }
-    }
+		while ($row = $result->fetch_assoc()) {
+			$characterName = $row['member_name'];
+			$characterRank = (int)$row['member_rank_id'];
+
+			if (!in_array($characterName, $xmlCharacterNames) && $characterRank !== 5) {
+				$charactersToRemove[] = $characterName;
+			}
+		}
+
+		if (!empty($charactersToRemove)) {
+			$charactersToRemoveList = implode("', '", $charactersToRemove);
+			$deleteQuery = "DELETE FROM {$table_prefix}members WHERE member_name IN ('$charactersToRemoveList')";
+        
+			if ($db->query($deleteQuery)) {
+				echo '<span style="color: red;">Characters not in XML file or with rank 5 removed from the database.</span><br>';
+				echo '<span style="color: red; font-style: italic;"><b>Characters removed from the database: ' . implode(', ', $charactersToRemove) . '</b></span><br>';
+			} else {
+				$errorMessage = 'Error removing characters not in XML file or with rank 5: ' . $db->error;
+				logError($errorMessage); // Log the error
+				echo '<span style="color: red; font-style: italic;">' . $errorMessage . '</span><br>';
+			}
+		}
+	}
 
     // Rename the XML file to indicate it has been processed
     $new_xml_filename = 'lotro_import/roster-' . date('Ymd') . '.xml'; // Rename with the current date
