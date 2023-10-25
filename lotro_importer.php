@@ -1,5 +1,5 @@
 <?php
-//Version: lotro_importer 2.2.3
+//Version: lotro_importer 2.3.1
 // Enable error reporting and display errors for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
