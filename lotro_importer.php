@@ -2,6 +2,7 @@
 // Version: lotro_importer 3.1.3
 // Enable error reporting and display errors for debugging
 error_reporting(E_ALL);
+// Set to 1 to enable displaying of errors, or set to 0 to disable
 ini_set('display_errors', 0);
 
 // Enable or disable error logging to a file
